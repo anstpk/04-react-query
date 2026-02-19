@@ -19,21 +19,21 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, isSuccess } = useQuery({
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
     placeholderData: (previousData) => previousData,
   });
 
-  useEffect(() => {
-  if (!isLoading && !isError && query && movies.length === 0) {
-    toast.error('No movies found for your request.');
-  }
-}, [movies, isLoading, isError, query]);
-
   const movies = data?.results ?? [];
   const totalPages = data?.total_pages ?? 0;
+  
+  useEffect(() => {
+    if (isSuccess && query && data?.results.length === 0) {
+      toast.error('No movies found for your request.');
+    }
+  }, [isSuccess, data, query]);
 
   const handleSearch = (searchQuery: string) => {
     setQuery(searchQuery);
